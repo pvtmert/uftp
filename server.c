@@ -65,6 +65,7 @@ int main(int argc, char *argv[])
 			fork();
 		else
 			break;
+		ischild = true;
 		if((ppid = getpid()) == mainpid)
 			continue;
 		debug("forked... pid: %d",ppid);
