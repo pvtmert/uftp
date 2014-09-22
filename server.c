@@ -2,10 +2,12 @@
 
 void vdebug(char *fmt, va_list args)
 {
+	FILE *out = stderr;
 	char *buffer = malloc(BUFSIZE);
 	int bytes = sprintf(buffer,DEBUG_PREFIX"%s",PADDING,time(NULL),fmt);
-	vsprintf(buffer,buffer,args);
-	fprintf(stderr,"%s\r\n",buffer);
+	buffer[bytes] = NULL;
+	vfprintf(out,buffer,args);
+	fprintf(stderr,"\r\n");
 	return;
 }
 
@@ -56,6 +58,7 @@ int main(int argc, char *argv[])
 	bool ischild = false;
 	debug("in loop");
 	char *cliname = malloc(BUFSIZE);
+	prg_space:
 	while(!ischild)
 	{
 		accfd = accept(sockfd,(struct sockaddr*)&guest,&addr_size);
@@ -65,7 +68,7 @@ int main(int argc, char *argv[])
 			fork();
 		else
 			break;
-		ischild = true;
+		//ischild = true;
 		if((ppid = getpid()) == mainpid)
 			continue;
 		debug("forked... pid: %d",ppid);
@@ -105,13 +108,13 @@ int main(int argc, char *argv[])
 			{
 				char r;
 				retval = recv(accfd,&r,1,0);
-				printf("%d ",r);
-				if(r == 28 || retval < 1 || r < 0)
+				//printf("%d ",r);
+				if(r == EOF || r == 28 || retval < 1 || r < 0)
 					break;
-				fwrite(&r,sizeof(void),1,fp);
+				fwrite(&r,sizeof(char),1,fp);
 			}
 			fclose(fp);
-			printf("\n");
+			//printf("\n");
 			goto writer;
 	}
 	printf("Client %s is disconnected, ending PID: %d\n",cliname,ppid);
