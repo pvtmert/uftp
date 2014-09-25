@@ -7,7 +7,7 @@ void vdebug(char *fmt, va_list args)
 	int bytes = sprintf(buffer,DEBUG_PREFIX"%s",PADDING,time(NULL),fmt);
 	buffer[bytes] = NULL;
 	vfprintf(out,buffer,args);
-	fprintf(stderr,"\r\n");
+	fprintf(out,"\r\n");
 	return;
 }
 

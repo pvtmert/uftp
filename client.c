@@ -81,10 +81,11 @@ int main(int argc, char *argv[])
 			char end[] = {EOF,28}; //EOF;
 			retval = send(sockfd,end,1,0);
 		}
+		//send(sockfd,0,0,0); //recv eq 0
 		fclose(fp);
 	}
 	char end[] = {28,NULL};
-	retval = send(sockfd,&end,BUFSIZE,0);
+	retval = send(sockfd,end,BUFSIZE,0);
 	if(retval < 0)
 		perror("[send]");
 	retval = recv(sockfd,buf,BUFSIZE,0);
