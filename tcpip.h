@@ -10,7 +10,11 @@
 #include <string.h>
 #include <signal.h>
 #include <unistd.h>
-#include <stdbool.h>
+#if defined(__WIN32__) || defined(_WIN32)
+	typedef enum { false, true } bool;
+#else
+	#include <stdbool.h>
+#endif
 #include <sys/wait.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
@@ -27,6 +31,9 @@
 #define SRV_HEADER "!_OK+"
 #define TIME_DIFF "!_QT+"
 #define HELO_PROT "!_HI+"
+#define EOT 4
+
+const char endchar = '%';
 
 #endif
 

@@ -38,10 +38,10 @@ int main(int argc, char *argv[])
 	char *pos = buf + strlen(SRV_HEADER);
 	unsigned server_time = atoi(pos);
 	unsigned local_time = time(NULL)/10;
-	if(local_time != server_time)
+	if(local_time != server_time && false)
 	{
 		sprintf(buf,TIME_DIFF"%u\n",time(NULL)/10);
-		
+
 		send(sockfd,buf,strlen(buf),0);
 		free(buf);
 		close(connfd);
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 		printf("Error: Your clock is not in sync with server!\n"
 				"Difference (s-c): %d\n",server_time-local_time);
 		return 5;
-		
+
 	}
 	FILE *fp;
 	for(int i=3;i<argc;i++)
@@ -71,21 +71,21 @@ int main(int argc, char *argv[])
 		while(!feof(fp))
 		{
 			char b;
-			fread(&b,sizeof(void),1,fp);
-			if(feof(fp))
+			fread(&b,sizeof(void),1,fp); // was void
+			if(feof(fp) || false && (argv[i] == '-' && (b == NULL || b == EOT || b < 0)))
 				break;
-			send(sockfd,&b,1,0);
+			if(b == endchar)
+				send(sockfd,&endchar,sizeof(char),0);
+			send(sockfd,&b,sizeof(char),0);
 		}
-		if(i == argc-1 || true)
-		{
-			char end[] = {EOF,28}; //EOF;
-			retval = send(sockfd,end,1,0);
-		}
-		//send(sockfd,0,0,0); //recv eq 0
+		retval = send(sockfd,&endchar,sizeof(char),0);
+		char c = EOF;
+		retval = send(sockfd,&c,sizeof(char),0);
 		fclose(fp);
 	}
-	char end[] = {28,NULL};
-	retval = send(sockfd,end,BUFSIZE,0);
+	//
+	char connfinish[] = {endchar,NULL};
+	retval = send(sockfd,connfinish,BUFSIZE,0);
 	if(retval < 0)
 		perror("[send]");
 	retval = recv(sockfd,buf,BUFSIZE,0);

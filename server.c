@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 		FILE *fp;
 		writer:
 			retval = recv(accfd,buf,BUFSIZE,0);
-			if(retval < 1 || buf == NULL || buf[0] == 28)
+			if(retval < 1 || buf[0] == endchar && buf[1] == NULL)
 				break;
 			//for(int i=retval;i<BUFSIZE;i++) buf[i] = NULL;
 			if(!strncmp(buf,TIME_DIFF,strlen(TIME_DIFF)))
@@ -107,10 +107,18 @@ int main(int argc, char *argv[])
 			while(retval > 0)
 			{
 				char r;
-				retval = recv(accfd,&r,1,0);
+				retval = recv(accfd,&r,sizeof(char),0);
 				//printf("%d ",r);
-				if(r == EOF || r == 28 || retval < 1 || r < 0)
-					break;
+				if(retval < 0 || r == endchar)
+				{
+					char n;
+					retval = recv(accfd,&n,sizeof(char),0);
+					if(n != endchar || n == EOF)
+						break;
+					fwrite(&r,sizeof(char),1,fp);
+					fwrite(&n,sizeof(char),1,fp);
+					continue;
+				}
 				fwrite(&r,sizeof(char),1,fp);
 			}
 			fclose(fp);
