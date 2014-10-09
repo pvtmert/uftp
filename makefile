@@ -22,7 +22,7 @@ user:
 clean:
 	@$(ECHO) "$(RM) *.o server client user keycode"
 	@-if [ $(CC) == "clang" ]; then $(ECHO) "$(RM) client.dSYM server.dSYM user.dSYM"; $(RM) -rf client.dSYM server.dSYM user.dSYM &>/dev/null; fi
-	@-$(RM) *.o server client user 2>/dev/null
+	@-$(RM) *.o server client user keycode 2>/dev/null
 
 keycode:
 	$(CC) -o $@ $@.c
