@@ -31,16 +31,20 @@ void debug(char *str, ...)
 	return;
 }
 
+void usage()
+{
+		fprintf(stderr,"usage: [port] [child-count] \n");
+		exit(1);
+}
+
 // the main function
 int main(int argc, char *argv[])
 {
 	// if there is no arguments, which looks impossible...
 	// OR there is invalid port number...
-	if(argc < 1 || atoi(argv[2]) == 0)
-	{
-		printf("usage: [port] [child-count] \n");
-		return 1;
-	}
+	if(argc > 1)
+		if(!atoi(argv[1]))
+			usage();
 	// notify the user or log it
 	debug("application started...");
 	// our general recieve and send buffer
