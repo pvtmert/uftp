@@ -37,11 +37,10 @@ int main(int argc, char *argv[])
 	retval = recv(sockfd,buf,BUFSIZE,0);
 	char *pos = buf + strlen(SRV_HEADER);
 	unsigned server_time = atoi(pos);
-	unsigned local_time = time(NULL)/10;
-	if(local_time != server_time && false)
+	unsigned local_time = (unsigned)(time(NULL)/10);
+	if(local_time != server_time)
 	{
-		sprintf(buf,TIME_DIFF"%u\n",time(NULL)/10);
-
+		sprintf(buf,TIME_DIFF"%u\n",(unsigned)(time(NULL)/10));
 		send(sockfd,buf,strlen(buf),0);
 		free(buf);
 		close(connfd);
@@ -54,16 +53,18 @@ int main(int argc, char *argv[])
 	FILE *fp;
 	for(int i=3;i<argc;i++)
 	{
+		memset(buf,0,BUFSIZE);
 		if(!strcmp(argv[i],"-"))
 		{
 			fp = stdin;
-			sprintf(buf,CLI_HEADER"%u.txt\n",(unsigned)time(NULL));
+			retval = sprintf(buf,CLI_HEADER"%u.txt\n",(unsigned)time(NULL));
 		}else{
 			fp = fopen(argv[i],"rb");
-			sprintf(buf,CLI_HEADER"%s\n",argv[i]);
+			retval = sprintf(buf,CLI_HEADER"%s\n",argv[i]);
 		}
 		if(fp == NULL)
 			continue;
+		//fprintf(stderr,"%s.%d\n",buf,strlen(buf));
 		printf("Sending file: %s\n",argv[i]);
 		retval = send(sockfd,buf,BUFSIZE,0);
 		if(retval < 0)
@@ -71,9 +72,12 @@ int main(int argc, char *argv[])
 		while(!feof(fp))
 		{
 			char b;
-			fread(&b,sizeof(void),1,fp); // was void
-			if(feof(fp) || false && (argv[i] == '-' && (b == NULL || b == EOT || b < 0)))
+			retval = fread(&b,sizeof(char),1,fp); // was void
+			if(feof(fp) || (argv[i][0] == '-' && (b == NULL || b == EOT || b < 0)) )
+			{
+				//printf("got eof\n");
 				break;
+			}
 			if(b == endchar)
 				send(sockfd,&endchar,sizeof(char),0);
 			send(sockfd,&b,sizeof(char),0);
@@ -84,7 +88,7 @@ int main(int argc, char *argv[])
 		fclose(fp);
 	}
 	//
-	char connfinish[] = {endchar,NULL};
+	char connfinish[] = {endchar,EOF};
 	retval = send(sockfd,connfinish,BUFSIZE,0);
 	if(retval < 0)
 		perror("[send]");

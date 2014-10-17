@@ -6,7 +6,7 @@ void vdebug(char *fmt, va_list args)
 {
 	FILE *out = stderr;
 	char *buffer = malloc(BUFSIZE);
-	int bytes = sprintf(buffer,DEBUG_PREFIX"%s",PADDING,time(NULL),fmt);
+	int bytes = sprintf(buffer,DEBUG_PREFIX"%s",PADDING,(unsigned)time(NULL),fmt);
 	buffer[bytes] = NULL;
 	vfprintf(out,buffer,args);
 	fprintf(out,"\r\n");
@@ -124,17 +124,17 @@ int main(int argc, char *argv[])
 			perror(NULL);
 			break;
 		}
-		//buf[retval] = NULL;
+		buf[retval] = NULL;
 		if(strncmp(buf,HELO_PROT,strlen(HELO_PROT)))
 			break;
 		strcpy(cliname,strtok(buf+strlen(HELO_PROT),"\r\n"));
 		printf("%s is connected...\n",cliname);
-		sprintf(buf,SRV_HEADER"%u\n",time(NULL)/10);
+		sprintf(buf,SRV_HEADER"%u\n",(unsigned)time(NULL)/10);
 		retval = send(accfd,buf,strlen(buf),0);
 		FILE *fp;
 		writer:
 			retval = recv(accfd,buf,BUFSIZE,0);
-			if(retval < 1 || buf[0] == endchar && buf[1] == NULL)
+			if(retval < 1 || (buf[0] == endchar && buf[1] == EOF))
 				break;
 			//for(int i=retval;i<BUFSIZE;i++) buf[i] = NULL;
 			if(!strncmp(buf,TIME_DIFF,strlen(TIME_DIFF)))
