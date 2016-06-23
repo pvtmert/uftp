@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 	char *pos = buf + strlen(SRV_HEADER);
 	unsigned server_time = atoi(pos);
 	unsigned local_time = (unsigned)(time(NULL)/10);
-	if(local_time != server_time)
+	if(local_time != server_time && false)
 	{
 		sprintf(buf,TIME_DIFF"%u\n",(unsigned)(time(NULL)/10));
 		send(sockfd,buf,strlen(buf),0);
@@ -69,10 +69,18 @@ int main(int argc, char *argv[])
 		retval = send(sockfd,buf,BUFSIZE,0);
 		if(retval < 0)
 			perror(NULL);
+		int ln = 1;
 		while(!feof(fp))
 		{
-			char b;
+			unsigned char b;
 			retval = fread(&b,sizeof(char),1,fp); // was void
+			printf("% 3u ",b);
+			if(ln%18 == 0)
+			{
+				printf("\n");
+				ln = 0;
+			}
+			ln += 1;
 			if(feof(fp) || (argv[i][0] == '-' && (b == NULL || b == EOT || b < 0)) )
 			{
 				//printf("got eof\n");
@@ -80,8 +88,10 @@ int main(int argc, char *argv[])
 			}
 			if(b == endchar)
 				send(sockfd,&endchar,sizeof(char),0);
+			//b = htons(b);
 			send(sockfd,&b,sizeof(char),0);
 		}
+		printf("\n");
 		retval = send(sockfd,&endchar,sizeof(char),0);
 		char c = EOF;
 		retval = send(sockfd,&c,sizeof(char),0);

@@ -150,25 +150,33 @@ int main(int argc, char *argv[])
 			fp = fopen(ptr,"wb");
 			//free(ptr);
 			retval = 1;
+			int ln = 1;
 			while(retval > 0)
 			{
 				char r;
 				retval = recv(accfd,&r,sizeof(char),0);
-				//printf("%d ",r);
+				//r = ntohs(r);
+				printf("% 3u ",(unsigned char)r);
+				if(ln%18 == 0)
+				{
+					printf("\n");
+					ln = 0;
+				}
+				ln += 1;
 				if(retval < 0 || r == endchar)
 				{
 					char n;
 					retval = recv(accfd,&n,sizeof(char),0);
 					if(n != endchar || n == EOF)
 						break;
-					fwrite(&r,sizeof(char),1,fp);
-					fwrite(&n,sizeof(char),1,fp);
+					retval = fwrite(&r,sizeof(char),1,fp);
+					retval = fwrite(&n,sizeof(char),1,fp);
 					continue;
 				}
-				fwrite(&r,sizeof(char),1,fp);
+				retval = fwrite(&r,sizeof(char),1,fp);
 			}
 			fclose(fp);
-			//printf("\n");
+			printf("\n");
 			goto writer;
 	}
 	printf("Client %s is disconnected, ending PID: %d\n",cliname,ppid);
