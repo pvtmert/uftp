@@ -51,7 +51,9 @@ int main(int argc, char *argv[])
 
 	}
 	FILE *fp;
-	for(int i=3;i<argc;i++)
+	int i;
+
+	for(i=3;i<argc;i++)
 	{
 		memset(buf,0,BUFSIZE);
 		if(!strcmp(argv[i],"-"))
@@ -74,14 +76,14 @@ int main(int argc, char *argv[])
 		{
 			unsigned char b;
 			retval = fread(&b,sizeof(char),1,fp); // was void
-			printf("% 3u ",b);
+			printf("%03u ",b);
 			if(ln%18 == 0)
 			{
 				printf("\n");
 				ln = 0;
 			}
 			ln += 1;
-			if(feof(fp) || (argv[i][0] == '-' && (b == NULL || b == EOT || b < 0)) )
+			if(feof(fp) || (argv[i][0] == '-' && (b == '\0' || b == EOT)) )
 			{
 				//printf("got eof\n");
 				break;
@@ -105,7 +107,7 @@ int main(int argc, char *argv[])
 	retval = recv(sockfd,buf,BUFSIZE,0);
 	if(retval < 0)
 		perror(NULL);
-	buf[retval] = NULL;
+	buf[retval] = '\0';
 	printf("Server: %s\n",strtok(buf+strlen(TIME_DIFF),"\r\n"));
 	free(buf);
 	close(connfd);
