@@ -1,5 +1,9 @@
-
 CC=tcc
+# Check if primary compiler exists.
+ifeq (, $(shell which $(CC)))
+# Use GCC by default.
+CC=gcc
+endif
 CFLAGS=-ggdb
 LDFLAGS=
 
