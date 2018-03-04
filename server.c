@@ -7,7 +7,7 @@ void vdebug(char *fmt, va_list args)
 	FILE *out = stderr;
 	char *buffer = malloc(BUFSIZE);
 	int bytes = sprintf(buffer,DEBUG_PREFIX"%s",PADDING,(unsigned)time(NULL),fmt);
-	buffer[bytes] = NULL;
+	buffer[bytes] = '\0';
 	vfprintf(out,buffer,args);
 	fprintf(out,"\r\n");
 	return;
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
 			perror(NULL);
 			break;
 		}
-		buf[retval] = NULL;
+		buf[retval] = '\0';
 		if(strncmp(buf,HELO_PROT,strlen(HELO_PROT)))
 			break;
 		strcpy(cliname,strtok(buf+strlen(HELO_PROT),"\r\n"));
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
 				char r;
 				retval = recv(accfd,&r,sizeof(char),0);
 				//r = ntohs(r);
-				printf("% 3u ",(unsigned char)r);
+				printf("%03u ",(unsigned char)r);
 				if(ln%18 == 0)
 				{
 					printf("\n");
